@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 
 namespace Библиотека
 {
@@ -10,32 +11,100 @@ namespace Библиотека
         public static void LendingMenu() //метод меню по работе с выдачами книг
 
         {
-
-            ICollection<Lending> lendings = new List<Lending>(); //создаем коллекцию выдач книг
-            int id =0; //задаем пустой ID, чтобы переназначить его в методах
-             
-            
-
-            ICollection<Book> books = new List<Book>(); //создаем коллекцию книг
-
-            using (StreamReader reader = new StreamReader("books.txt")) //присваеваем потоку чтения файл с книгами
+            List<Lending> lendings = new List<Lending>();
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load("lendings.xml");
+            XmlElement xRoot = xDoc.DocumentElement;
+            foreach (XmlElement xnode in xRoot)
             {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
+                Lending lending = new Lending();
+                XmlNode attr = xnode.Attributes.GetNamedItem("id");
+
+                if (attr != null)
+                    lending.Id = Int32.Parse(attr.Value);
+
+                foreach (XmlNode childnode in xnode.ChildNodes)
                 {
-                    books.Add(Book.FromString(reader.ReadLine())); //применяем метод из Book.cs по чтению строки и добавляем книгу в колллекцию     
+                    if (childnode.Name == "title")
+                        lending.Title = childnode.InnerText;
+
+                    if (childnode.Name == "ticket_number")
+                        lending.TicketNumber = Int32.Parse(childnode.InnerText);
+
+                    if (childnode.Name == "issue_date")
+                        lending.IssueDate = childnode.InnerText;
+
+                    if (childnode.Name == "usage_period")
+                        lending.UsagePeriod = childnode.InnerText;
+
+                    if (childnode.Name == "librarian_name")
+                        lending.LibrarianName = childnode.InnerText;
                 }
+                lendings.Add(lending);
             }
 
-            ICollection<Reader> readers = new List<Reader>();
-
-            using (StreamReader reader = new StreamReader("readers.txt")) //присваеваем потоку чтения файл с читателями
+            List<Book> books = new List<Book>();
+            XmlDocument xDoc1 = new XmlDocument();
+            xDoc.Load("books.xml");
+            XmlElement xRoot1 = xDoc.DocumentElement;
+            foreach (XmlElement xnode in xRoot)
             {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
+                Book book = new Book();
+                XmlNode attr = xnode.Attributes.GetNamedItem("id");
+
+                if (attr != null)
+                    book.Id = Int32.Parse(attr.Value);
+
+                foreach (XmlNode childnode in xnode.ChildNodes)
                 {
-                    readers.Add(Reader.FromString(reader.ReadLine())); //применяем метод из Reader.cs по чтению строки и добавляем читателя в колллекцию 
+                    if (childnode.Name == "title")
+                        book.Author = childnode.InnerText;
+
+                    if (childnode.Name == "author")
+                        book.Author = childnode.InnerText;
+
+                    if (childnode.Name == "price")
+                        book.Price = Int32.Parse(childnode.InnerText);
+
+                    if (childnode.Name == "genre")
+                        book.Genre = childnode.InnerText;
+
+                    if (childnode.Name == "year")
+                        book.Year = Int32.Parse(childnode.InnerText);
                 }
+                books.Add(book);
             }
 
+            List<Reader> readers = new List<Reader>();
+            XmlDocument xDoc2 = new XmlDocument();
+            xDoc.Load("readers.xml");
+            XmlElement xRoot2 = xDoc.DocumentElement;
+            foreach (XmlElement xnode in xRoot)
+            {
+                Reader reader = new Reader();
+                XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                if (attr != null)
+                    reader.Id = int.Parse(attr.Value);
+
+                foreach (XmlNode childnode in xnode.ChildNodes)
+                {
+                    if (childnode.Name == "ticket_number")
+                        reader.TicketNumber = Int32.Parse(childnode.InnerText);
+
+                    if (childnode.Name == "name")
+                        reader.Name = childnode.InnerText;
+
+                    if (childnode.Name == "address")
+                        reader.Address = childnode.InnerText;
+
+                    if (childnode.Name == "phone")
+                        reader.Phone = childnode.InnerText;
+
+                    if (childnode.Name == "passport_number")
+                        reader.PassportNumber = childnode.InnerText;
+                }
+                readers.Add(reader);
+            }
 
             Console.Clear(); //очищаем полностью консоль
             Console.WriteLine("                      ===============================\n" +
@@ -55,12 +124,12 @@ namespace Библиотека
                 case '1':
                     ShowLendings(readers, books, lendings); //при вводе 1 демонстрируются все выдачи книг
                     break;
-                case '2':
+                /*case '2':
                     AddLending(readers, books, ref lendings, ref id); //при вводе 2 осуществляется переход в меню с добавлением выдачи книги
                     break;
                 case '3':
                     DeleteLending(ref lendings); //при вводе 3 осуществляется переход в меню с удалением выдачи книги
-                    break;
+                    break;*/
                 case '4':
                     Main.MainMenu(); //при вводе 4 осуществляется переход в главное меню приложения
                     break;
@@ -74,13 +143,6 @@ namespace Библиотека
 
         internal static void ShowLendings(ICollection<Reader> readers, ICollection<Book> books, ICollection<Lending> lendings) //метод по выводу всех выдач книг
         {
-            using (StreamReader reader = new StreamReader("lendings.txt")) //присваеваем потоку чтения файл с выдачами книг
-            {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
-                {
-                    lendings.Add(Lending.FromString(reader.ReadLine())); //применяем метод из Lending.cs по чтению строки и добавляем выдачу книги в колллекцию
-                }
-            }
             Console.Clear(); //очищаем полностью консоль
             if (lendings.Count() != 0) //если выдачи книг есть
             {
@@ -98,7 +160,7 @@ namespace Библиотека
             LendingMenu(); //возвращаемся в меню работы с выдачами книг
         }
 
-        static void AddLending(ICollection<Reader> readers, ICollection<Book> books, ref ICollection<Lending> lendings, ref int id) //метод по добавлению выдачи книги
+        /*static void AddLending(ICollection<Reader> readers, ICollection<Book> books, ref ICollection<Lending> lendings, ref int id) //метод по добавлению выдачи книги
         {
             Console.Clear(); //очищаем полностью консоль
             if (books.Count() == 0) //если книг нет
@@ -236,6 +298,6 @@ namespace Библиотека
                 LendingMenu(); //возвращаемся в меню работы с книгами
             }
             
-        }
+        }*/
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 
 namespace Библиотека
 {
@@ -9,8 +10,36 @@ namespace Библиотека
     {
         public static void ReaderMenu() //метод меню по работе с читателями
         {
-            
+            List<Reader> readers = new List<Reader>();
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load("readers.xml");
+            XmlElement xRoot = xDoc.DocumentElement;
+            foreach (XmlElement xnode in xRoot)
+            {
+                Reader reader = new Reader();
+                XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                if (attr != null)
+                    reader.Id = int.Parse(attr.Value);
 
+                foreach (XmlNode childnode in xnode.ChildNodes)
+                {
+                    if (childnode.Name == "ticket_number")
+                        reader.TicketNumber = Int32.Parse(childnode.InnerText);
+
+                    if (childnode.Name == "name")
+                        reader.Name = childnode.InnerText;
+
+                    if (childnode.Name == "address")
+                        reader.Address = childnode.InnerText;
+
+                    if (childnode.Name == "phone")
+                        reader.Phone = childnode.InnerText;
+
+                    if (childnode.Name == "passport_number")
+                        reader.PassportNumber = childnode.InnerText;
+                }
+                readers.Add(reader);
+            }
             Console.Clear(); //очищаем полностью консоль
             Console.WriteLine("                      ===============================\n" +
                               "                      |     1. Список читателей     |\n" +
@@ -24,21 +53,18 @@ namespace Библиотека
             Console.WriteLine();
             Console.Write("Введите код операции:  ");
             char Code = Console.ReadKey(true).KeyChar; //считываем введенный код и переходим по соответствующему меню
-            ICollection<Reader> readers = new List<Reader>(); //создаем коллекцию читателей
-            int id = 0; //задаем пустой ID, чтобы переназначить его в методах
-
-
+            
             switch (Code)
             {
                 case '1':
-                    ShowReaders(ref readers); //при вводе 1 демонстрируются все читатели
+                    ShowReaders(readers); //при вводе 1 демонстрируются все читатели
                     break; 
-                case '2':
+                /*case '2':
                     AddReader(ref readers, ref id); //при вводе 2 осуществляется переход в меню с добавлением читателя
                     break;
                 case '3':
                     DeleteReader(ref readers); //при вводе 3 осуществляется переход в меню с удалением читателя
-                    break;
+                    break;*/
                 case '4':
                     Main.MainMenu(); //при вводе 4 осуществляется переход в главное меню приложения
                     break;
@@ -50,15 +76,8 @@ namespace Библиотека
             }
         }
 
-        internal static void ShowReaders(ref ICollection<Reader> readers) //метод по выводу всех читателей
-        {
-            using (StreamReader reader = new("readers.txt")) //присваеваем потоку чтения файл с читателями
-            {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
-                {
-                    readers.Add(Reader.FromString(reader.ReadLine())); //применяем метод из Reader.cs по чтению строки и добавляем читателя в колллекцию                    
-                }
-            }
+        internal static void ShowReaders(List<Reader> readers) //метод по выводу всех читателей
+        {            
             Console.Clear(); //очищаем полностью консоль
             if (readers.Count() != 0) //если книги есть
             {
@@ -76,7 +95,7 @@ namespace Библиотека
             ReaderMenu(); //возвращаемся в меню работы с читателями
         }
 
-        static void AddReader(ref ICollection<Reader> readers, ref int id) //метод по добавлению читателя
+        /*static void AddReader(ref ICollection<Reader> readers, ref int id) //метод по добавлению читателя
         {
             using (StreamReader reading = new("readers.txt")) //присваеваем потоку чтения файл с читателями
             {
@@ -173,6 +192,6 @@ namespace Библиотека
                 }
                 ReaderMenu(); //возвращаемся в меню работы с читателями
             }
-        }
+        }*/
     }
 }
