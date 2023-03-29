@@ -59,10 +59,10 @@ namespace Библиотека
                 case '1':
                     ShowReaders(readers); //при вводе 1 демонстрируются все читатели
                     break; 
-                /*case '2':
-                    AddReader(ref readers, ref id); //при вводе 2 осуществляется переход в меню с добавлением читателя
+                case '2':
+                    AddReader(readers); //при вводе 2 осуществляется переход в меню с добавлением читателя
                     break;
-                case '3':
+                /*case '3':
                     DeleteReader(ref readers); //при вводе 3 осуществляется переход в меню с удалением читателя
                     break;*/
                 case '4':
@@ -95,38 +95,51 @@ namespace Библиотека
             ReaderMenu(); //возвращаемся в меню работы с читателями
         }
 
-        /*static void AddReader(ref ICollection<Reader> readers, ref int id) //метод по добавлению читателя
+        static void AddReader(List<Reader> readers) //метод по добавлению читателя
         {
-            using (StreamReader reading = new("readers.txt")) //присваеваем потоку чтения файл с читателями
-            {
-                while (!reading.EndOfStream) //пока не достигнут конец файла
-                {
-                    readers.Add(Reader.FromString(reading.ReadLine())); //применяем метод из Reader.cs по чтению строки и добавляем читателя в колллекцию
-                    if (readers == null) //если книг нет
-                    {
-                        id = 0; //первый ID=0
-                    }
-                    else
-                    {
-                        id = readers.Last().Id + 1; //иначе к последнему добавляем 1, чтобы следующий читатель был с ID на 1 больше
-                    } 
-                }
-            }
-            Console.Clear(); //очищаем полностью консоль
+            Console.Clear();
+            XmlDocument xDoc = new XmlDocument();
+            xDoc.Load("readers.xml");
+            XmlElement xRoot = xDoc.DocumentElement;
+            // создаем новый элемент book
+            XmlElement readerElem = xDoc.CreateElement("reader");
+            // создаем атрибут name
+            XmlAttribute idAttr = xDoc.CreateAttribute("id");
+            // создаем элементы company и age
+            XmlElement ticketNumberElem = xDoc.CreateElement("ticket_number");
+            XmlElement nameElem = xDoc.CreateElement("name");
+            XmlElement addressElem = xDoc.CreateElement("address");
+            XmlElement phoneElem = xDoc.CreateElement("phone");
+            XmlElement passportNumberElem = xDoc.CreateElement("passport_number");
+            // создаем текстовые значения для элементов и атрибута
             try
             {
-                Console.WriteLine("Введите номер билета");
-                int TicketNumber = int.Parse(Console.ReadLine());
-                Console.WriteLine("Введите имя читателя");
-                string Name = Console.ReadLine();
-                Console.WriteLine("Введите адрес");
-                string Address = Console.ReadLine();
-                Console.WriteLine("Введите номер телефона");
-                string Phone = Console.ReadLine();
-                Console.WriteLine("Введите номер паспорта");
-                string PassportNumber = Console.ReadLine();
-                Reader reader = new Reader(id, TicketNumber, Name, Address, Phone, PassportNumber); //применяем конструктор из Reader.cs и записываем все введенные данные в нового читателя
-                readers.Add(reader); //добавляем в коллекцию нового читателя
+                XmlText idText = xDoc.CreateTextNode(readers.Count().ToString());
+                Console.WriteLine("Введите номер билета читателя: ");
+                XmlText ticketNumberText = xDoc.CreateTextNode(int.Parse(Console.ReadLine()).ToString());
+                Console.WriteLine("Введите имя читателя: ");
+                XmlText nameText = xDoc.CreateTextNode(Console.ReadLine());
+                Console.WriteLine("Введите адрес читателя: ");
+                XmlText addressText = xDoc.CreateTextNode(Console.ReadLine());
+                Console.WriteLine("Введите номер телефона читателя: ");
+                XmlText phoneText = xDoc.CreateTextNode(Console.ReadLine());
+                Console.WriteLine("Введите номер паспорта читателя: ");
+                XmlText passportNumberText = xDoc.CreateTextNode(Console.ReadLine());
+                //добавляем узлы
+                idAttr.AppendChild(idText);
+                ticketNumberElem.AppendChild(ticketNumberText);
+                nameElem.AppendChild(nameText);
+                addressElem.AppendChild(addressText);
+                phoneElem.AppendChild(phoneText);
+                passportNumberElem.AppendChild(passportNumberText);
+                readerElem.Attributes.Append(idAttr);
+                readerElem.AppendChild(ticketNumberElem);
+                readerElem.AppendChild(nameElem);
+                readerElem.AppendChild(addressElem);
+                readerElem.AppendChild(phoneElem);
+                readerElem.AppendChild(passportNumberElem);
+                xRoot.AppendChild(readerElem);
+                xDoc.Save("readers.xml");
             }
             catch
             {
@@ -135,18 +148,10 @@ namespace Библиотека
                 Console.ReadKey();
                 ReaderMenu();
             }
-
-            using (StreamWriter writer = new("readers.txt", false)) //создаем новый поток записи, который запишет нового читателя в файл
-            {
-                foreach (Reader _reader in readers)
-                {
-                    writer.WriteLine(_reader.ToString()); //применяем метод из Reader.cs по записи метода файл к каждому читателю
-                }
-            }
-            ReaderMenu(); //возвращаемся в меню работы с читателями
+            ReaderMenu(); //возвращаемся в меню работы с книгами
         }
 
-        static void DeleteReader(ref ICollection<Reader> readers) //метод по удалению читателя
+        /*static void DeleteReader(ref ICollection<Reader> readers) //метод по удалению читателя
         {
             using (StreamReader reader = new("readers.txt")) //присваеваем потоку чтения файл с читателями
             {

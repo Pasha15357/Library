@@ -124,10 +124,10 @@ namespace Библиотека
                 case '1':
                     ShowLendings(readers, books, lendings); //при вводе 1 демонстрируются все выдачи книг
                     break;
-                /*case '2':
-                    AddLending(readers, books, ref lendings, ref id); //при вводе 2 осуществляется переход в меню с добавлением выдачи книги
+                case '2':
+                    AddLending(readers, books, lendings); //при вводе 2 осуществляется переход в меню с добавлением выдачи книги
                     break;
-                case '3':
+                /*case '3':
                     DeleteLending(ref lendings); //при вводе 3 осуществляется переход в меню с удалением выдачи книги
                     break;*/
                 case '4':
@@ -141,7 +141,7 @@ namespace Библиотека
             }
         }
 
-        internal static void ShowLendings(ICollection<Reader> readers, ICollection<Book> books, ICollection<Lending> lendings) //метод по выводу всех выдач книг
+        internal static void ShowLendings(List<Reader> readers, List<Book> books, List<Lending> lendings) //метод по выводу всех выдач книг
         {
             Console.Clear(); //очищаем полностью консоль
             if (lendings.Count() != 0) //если выдачи книг есть
@@ -160,7 +160,7 @@ namespace Библиотека
             LendingMenu(); //возвращаемся в меню работы с выдачами книг
         }
 
-        /*static void AddLending(ICollection<Reader> readers, ICollection<Book> books, ref ICollection<Lending> lendings, ref int id) //метод по добавлению выдачи книги
+        static void AddLending(List<Reader> readers, List<Book> books, List<Lending> lendings) //метод по добавлению выдачи книги
         {
             Console.Clear(); //очищаем полностью консоль
             if (books.Count() == 0) //если книг нет
@@ -178,22 +178,7 @@ namespace Библиотека
                 LendingMenu(); //возвращаемся в меню работы с выдачами книг
             }
             else
-            {
-                using (StreamReader reader = new StreamReader("lendings.txt")) //присваеваем потоку чтения файл с выдачами книг
-                {
-                    while (!reader.EndOfStream) //пока не достигнут конец файла
-                    {
-                        lendings.Add(Lending.FromString(reader.ReadLine())); //применяем метод из Lending.cs по чтению строки и добавляем выдачу книги в колллекцию
-                        if (lendings == null) //если выдач книг нет
-                        {
-                            id = 0; //первый ID=0
-                        }
-                        else //иначе к последнему добавляем 1, чтобы следующая выдача книги была с ID на 1 больше
-                        {
-                            id = lendings.Last().Id + 1;
-                        }
-                    }
-                }
+            {                
                 foreach (Book book in books) //выводим каждую книгу колллекции
                 {
                     book.Show(); //метод вывода одной книги
@@ -202,38 +187,79 @@ namespace Библиотека
                 int book_code = int.Parse(Console.ReadLine());                
                 try
                 {
-                    var temp_books = books.Where(d => d.Id == book_code).First(); //проходимся по всей коллекции, пока не встретим книгу с введенным ID и записываем ее в переменную
+                    XmlDocument xDoc1 = new XmlDocument();
+                    xDoc1.Load("books.xml");
+                    XmlElement xRoot1 = xDoc1.DocumentElement;
+
+                    XmlNode childnode1 = xRoot1.SelectSingleNode($"user[@name='{book_code}']");
                     Console.Clear(); //очищаем полностью консоль
-                    if (temp_books != null) //если книга есть
+                    if (childnode1 != null) //если книга есть
                     {
                         foreach (Reader reader in readers) //выводим каждого читателя колллекции
                         {
                             reader.Show(); //метод по выводу одного читателя
                         }
                         Console.WriteLine("Введите код читателя, который возьмет книгу");
-                        int reader_code = int.Parse(Console.ReadLine());                        
-                        var temp_readers = readers.Where(d => d.Id == reader_code).First(); //проходимся по всей коллекции, пока не встретим читателя с введенным ID и записываем его в переменную
-                        
-                        if (temp_readers != null) //если читатель есть
-                        {
-                            string Title = temp_books.Title; //записываем из книги с нашим ID название этой книги в переменную названия книги выдачи книги
-                            int TicketNumber = temp_readers.TicketNumber;  //записываем из читателя с нашим ID номер его билета в переменную номера билета выдачи книги
-                            Console.Clear(); //очищаем полностью консоль
-                            Console.WriteLine("Введите дату выдачи");
-                            string IssueDate = Console.ReadLine();
-                            Console.WriteLine("Введите срок пользования");
-                            string UsagePeriod = Console.ReadLine();
-                            Console.WriteLine("Введите имя библиотекаря");
-                            string LibrarianName = Console.ReadLine();
-                            Lending lending = new(id, Title, TicketNumber, IssueDate, UsagePeriod, LibrarianName); //применяем конструктор из Lending.cs и записываем все введенные данные в новую выдачу книги
-                            lendings.Add(lending); //добавляем в коллекцию новую выдачу книги                           
+                        int reader_code = int.Parse(Console.ReadLine());
+                        XmlDocument xDoc2 = new XmlDocument();
+                        xDoc2.Load("books.xml");
+                        XmlElement xRoot2 = xDoc1.DocumentElement;
 
-                            using (StreamWriter writer = new StreamWriter("lendings.txt", false)) //создаем новый поток записи, который запишет новую книгу в файл
+                        XmlNode childnode2 = xRoot2.SelectSingleNode($"user[@name='{book_code}']");
+                        Console.Clear(); //очищаем полностью консоль
+
+                        if (childnode2 != null) //если читатель есть
+                        {
+                            Console.Clear();
+                            XmlDocument xDoc = new XmlDocument();
+                            xDoc.Load("lendings.xml");
+                            XmlElement xRoot = xDoc.DocumentElement;
+                            // создаем новый элемент book
+                            XmlElement bookElem = xDoc.CreateElement("lending");
+                            // создаем атрибут name
+                            XmlAttribute idAttr = xDoc.CreateAttribute("id");
+                            // создаем элементы company и age
+                            XmlElement titleElem = xDoc.CreateElement("title");
+                            XmlElement authorElem = xDoc.CreateElement("author");
+                            XmlElement priceElem = xDoc.CreateElement("price");
+                            XmlElement genreElem = xDoc.CreateElement("genre");
+                            XmlElement yearElem = xDoc.CreateElement("year");
+                            // создаем текстовые значения для элементов и атрибута
+                            try
                             {
-                                foreach (Lending _lending in lendings)
-                                {
-                                    writer.WriteLine(_lending.ToString()); //применяем метод из Lending.cs по записи метода файл к каждой выдаче книги
-                                }
+                                XmlText idText = xDoc.CreateTextNode(books.Count().ToString());
+                                Console.WriteLine("Введите название книги: ");
+                                XmlText titleText = xDoc.CreateTextNode(Console.ReadLine());
+                                Console.WriteLine("Введите автора книги: ");
+                                XmlText authorText = xDoc.CreateTextNode(Console.ReadLine());
+                                Console.WriteLine("Введите цену книги: ");
+                                XmlText priceText = xDoc.CreateTextNode(int.Parse(Console.ReadLine()).ToString());
+                                Console.WriteLine("Введите жанр книги: ");
+                                XmlText genreText = xDoc.CreateTextNode(Console.ReadLine());
+                                Console.WriteLine("Введите год издания книги: ");
+                                XmlText yearText = xDoc.CreateTextNode(int.Parse(Console.ReadLine()).ToString());
+                                //добавляем узлы
+                                idAttr.AppendChild(idText);
+                                titleElem.AppendChild(titleText);
+                                authorElem.AppendChild(authorText);
+                                priceElem.AppendChild(priceText);
+                                genreElem.AppendChild(genreText);
+                                yearElem.AppendChild(yearText);
+                                bookElem.Attributes.Append(idAttr);
+                                bookElem.AppendChild(titleElem);
+                                bookElem.AppendChild(authorElem);
+                                bookElem.AppendChild(priceElem);
+                                bookElem.AppendChild(genreElem);
+                                bookElem.AppendChild(yearElem);
+                                xRoot.AppendChild(bookElem);
+                                xDoc.Save("books.xml");
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Ошибка! Неверный формат");
+                                Console.WriteLine("Нажмите любую клавишу, чтобы ввести заново");
+                                Console.ReadKey();
+                                LendingMenu();
                             }
                             LendingMenu(); //возвращаемся в меню работы с выдачами книг
                         }
@@ -250,7 +276,7 @@ namespace Библиотека
             }           
         }
 
-        static void DeleteLending(ref ICollection<Lending> lendings) //метод по удалению выдачи книги
+        /*static void DeleteLending(ref ICollection<Lending> lendings) //метод по удалению выдачи книги
         {
             
             using (StreamReader reader = new StreamReader("lendings.txt")) //присваеваем потоку чтения файл с выдачами книг
