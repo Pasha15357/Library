@@ -127,9 +127,9 @@ namespace Библиотека
                 case '2':
                     AddLending(readers, books, lendings); //при вводе 2 осуществляется переход в меню с добавлением выдачи книги
                     break;
-                /*case '3':
-                    DeleteLending(ref lendings); //при вводе 3 осуществляется переход в меню с удалением выдачи книги
-                    break;*/
+                case '3':
+                    DeleteLending(lendings); //при вводе 3 осуществляется переход в меню с удалением выдачи книги
+                    break;
                 case '4':
                     Main.MainMenu(); //при вводе 4 осуществляется переход в главное меню приложения
                     break;
@@ -268,16 +268,8 @@ namespace Библиотека
             }           
         }
 
-        /*static void DeleteLending(ref ICollection<Lending> lendings) //метод по удалению выдачи книги
+        static void DeleteLending(List<Lending> lendings) //метод по удалению выдачи книги
         {
-            
-            using (StreamReader reader = new StreamReader("lendings.txt")) //присваеваем потоку чтения файл с выдачами книг
-            {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
-                {
-                    lendings.Add(Lending.FromString(reader.ReadLine())); //применяем метод из Lending.cs по чтению строки и добавляем выдачу книги в колллекцию
-                }
-            }
             Console.Clear(); //очищаем полностью консоль
             if (lendings.Count == 0) //если число книг равно 0
             {
@@ -295,16 +287,21 @@ namespace Библиотека
                 try
                 {
                     Console.WriteLine("Введите код записи, которую хотите удалить: ");
-                    int id = int.Parse(Console.ReadLine());
-                    var temp = lendings.Where(d => d.Id == id).First(); //проходимся по всей коллекции, пока не встретим выдачу книги с введенным ID и записываем ее в переменную
-                    lendings.Remove(temp); //удаляем из коллекции
-                    using (StreamWriter writer = new StreamWriter("lendings.txt")) //создаем новый поток записи, который удалит выдачу книги из файла
+                    int lending_code = int.Parse(Console.ReadLine());
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load("lendings.xml");
+                    XmlElement xRoot = xDoc.DocumentElement;
+                    foreach (XmlElement xnode in xRoot)
                     {
-                        foreach (Lending _lending in lendings)
+                        XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                        if (attr.Value == lending_code.ToString())
                         {
-                            writer.WriteLine(_lending.ToString()); //записываем в файл пустое значение вместо удаленной выдачи книги
+                            xRoot.RemoveChild(xnode);
                         }
                     }
+                    
+                    xDoc.Save("lendings.xml");
+                    Console.Clear(); //очищаем полностью консоль
                 }
                 catch
                 {
@@ -316,6 +313,6 @@ namespace Библиотека
                 LendingMenu(); //возвращаемся в меню работы с книгами
             }
             
-        }*/
+        }
     }
 }

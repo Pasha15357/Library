@@ -155,51 +155,47 @@ namespace Библиотека
         /*static void DeleteBook(ref ICollection<Book> books) //метод по удалению книги
         {
 
-            using (StreamReader reader = new("books.txt")) //присваеваем потоку чтения файл с книгами
-            {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
-                {
-                    books.Add(Book.FromString(reader.ReadLine())); //применяем метод из Book.cs по чтению строки и добавляем книгу в колллекцию                   
-                }
-            }
             Console.Clear(); //очищаем полностью консоль
-            foreach (Book book in books) //выводим каждую книгу колллекции
+            if (lendings.Count == 0) //если число книг равно 0
             {
-                book.Show(); //метод по выводу одной книги
-            }
-            if (books.Count == 0) //если число книг равно 0
-            {
-                Console.WriteLine("Книг нет.");
+                Console.WriteLine("Выдач книг нет.");
                 Console.Write("Нажмите любую клавишу, чтобы вернуться назад: ");
                 Console.ReadKey();
-                BookMenu(); //возвращаемся в меню работы с книгами
+                LendingMenu(); //возвращаемся в меню работы с выдачей книг
             }
             else
             {
+                foreach (Lending lending in lendings) //выводим каждую выдачу книги в колллекции
+                {
+                    lending.Show(); //метод вывода одной выдачи книги
+                }
                 try
                 {
                     Console.WriteLine("Введите код записи, которую хотите удалить: ");
-                    int id = int.Parse(Console.ReadLine());
-                    var temp = books.Where(d => d.Id == id).First(); //проходимся по всей коллекции, пока не встретим книгу с введенным ID и записываем ее в переменную
-                    books.Remove(temp); //удаляем из коллекции
-                    using (StreamWriter writer = new("books.txt")) //создаем новый поток записи, который удалит книгу из файла
+                    int lending_code = int.Parse(Console.ReadLine());
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load("lendings.xml");
+                    XmlElement xRoot = xDoc.DocumentElement;
+                    foreach (XmlElement xnode in xRoot)
                     {
-                        foreach (Book _book in books)
+                        XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                        if (attr.Value == lending_code.ToString())
                         {
-                            writer.WriteLine(_book.ToString()); //записываем в файл пустое значение вместо удаленной книги
+                            xRoot.RemoveChild(xnode);
                         }
                     }
+
+                    xDoc.Save("lendings.xml");
+                    Console.Clear(); //очищаем полностью консоль
                 }
                 catch
                 {
                     Console.WriteLine("Ошибка! Такой книги не существует!");
                     Console.WriteLine("Нажмите любую клавишу, чтобы выйти в меню");
                     Console.ReadKey();
-                    BookMenu();
+                    LendingMenu();
                 }
-                BookMenu(); //возвращаемся в меню работы с книгами
-
-
+                LendingMenu(); //возвращаемся в меню работы с книгами
             }
         }*/
     }
