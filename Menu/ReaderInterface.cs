@@ -53,18 +53,18 @@ namespace Библиотека
             Console.WriteLine();
             Console.Write("Введите код операции:  ");
             char Code = Console.ReadKey(true).KeyChar; //считываем введенный код и переходим по соответствующему меню
-            
+
             switch (Code)
             {
                 case '1':
                     ShowReaders(readers); //при вводе 1 демонстрируются все читатели
-                    break; 
+                    break;
                 case '2':
                     AddReader(readers); //при вводе 2 осуществляется переход в меню с добавлением читателя
                     break;
-                /*case '3':
-                    DeleteReader(ref readers); //при вводе 3 осуществляется переход в меню с удалением читателя
-                    break;*/
+                case '3':
+                    DeleteReader(readers); //при вводе 3 осуществляется переход в меню с удалением читателя
+                    break;
                 case '4':
                     Main.MainMenu(); //при вводе 4 осуществляется переход в главное меню приложения
                     break;
@@ -77,7 +77,7 @@ namespace Библиотека
         }
 
         internal static void ShowReaders(List<Reader> readers) //метод по выводу всех читателей
-        {            
+        {
             Console.Clear(); //очищаем полностью консоль
             if (readers.Count() != 0) //если книги есть
             {
@@ -151,42 +151,40 @@ namespace Библиотека
             ReaderMenu(); //возвращаемся в меню работы с книгами
         }
 
-        /*static void DeleteReader(ref ICollection<Reader> readers) //метод по удалению читателя
+        static void DeleteReader(List<Reader> readers) //метод по удалению читателя
         {
-            using (StreamReader reader = new("readers.txt")) //присваеваем потоку чтения файл с читателями
-            {
-                while (!reader.EndOfStream) //пока не достигнут конец файла
-                {
-                    readers.Add(Reader.FromString(reader.ReadLine())); //применяем метод из Reader.cs по чтению строки и добавляем читателя в колллекцию
-                }
-            }
             Console.Clear(); //очищаем полностью консоль
-            foreach (Reader reader in readers) //выводим каждого читателя колллекции
+            if (readers.Count == 0) //если число книг равно 0
             {
-                reader.Show(); //метод по выводу одного читателя
-            }
-            if (readers.Count == 0) //если число читателей равно 0
-            {
-                Console.WriteLine("Читателей нет.");
+                Console.WriteLine("Выдач книг нет.");
                 Console.Write("Нажмите любую клавишу, чтобы вернуться назад: ");
                 Console.ReadKey();
-                ReaderMenu(); //возвращаемся в меню работы с читателями
+                ReaderMenu(); //возвращаемся в меню работы с выдачей книг
             }
             else
             {
+                foreach (Reader reader in readers) //выводим каждую выдачу книги в колллекции
+                {
+                    reader.Show(); //метод вывода одной выдачи книги
+                }
                 try
                 {
                     Console.WriteLine("Введите код записи, которую хотите удалить: ");
-                    int id = int.Parse(Console.ReadLine());
-                    var temp = readers.Where(d => d.Id == id).First(); //проходимся по всей коллекции, пока не встретим читателя с введенным ID и записываем его в переменную
-                    readers.Remove(temp); //удаляем из коллекции
-                    using (StreamWriter writer = new("readers.txt")) //создаем новый поток записи, который удалит читателя из файла
+                    int reader_code = int.Parse(Console.ReadLine());
+                    XmlDocument xDoc = new XmlDocument();
+                    xDoc.Load("readers.xml");
+                    XmlElement xRoot = xDoc.DocumentElement;
+                    foreach (XmlElement xnode in xRoot)
                     {
-                        foreach (Reader _reader in readers)
+                        XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                        if (attr.Value == reader_code.ToString())
                         {
-                            writer.WriteLine(_reader.ToString()); //записываем в файл пустое значение вместо удаленного читателя
+                            xRoot.RemoveChild(xnode);
                         }
                     }
+
+                    xDoc.Save("readers.xml");
+                    Console.Clear(); //очищаем полностью консоль
                 }
                 catch
                 {
@@ -195,8 +193,8 @@ namespace Библиотека
                     Console.ReadKey();
                     ReaderMenu();
                 }
-                ReaderMenu(); //возвращаемся в меню работы с читателями
+                ReaderMenu(); //возвращаемся в меню работы с книгами
             }
-        }*/
+        }
     }
 }

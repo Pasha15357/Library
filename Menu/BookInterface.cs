@@ -63,9 +63,9 @@ namespace Библиотека
                 case '2':
                     AddBook(books); //при вводе 2 осуществляется переход в меню с добавлением книги
                     break;
-                /*case '3':
-                    DeleteBook(ref books); //при вводе 3 осуществляется переход в меню с удалением книги
-                    break;*/
+                case '3':
+                    DeleteBook(books); //при вводе 3 осуществляется переход в меню с удалением книги
+                    break;
                 case '4':
                     Main.MainMenu(); //при вводе 4 осуществляется переход в главное меню приложения
                     break;
@@ -152,40 +152,39 @@ namespace Библиотека
             BookMenu(); //возвращаемся в меню работы с книгами
         }
 
-        /*static void DeleteBook(ref ICollection<Book> books) //метод по удалению книги
+        static void DeleteBook(List<Book> books) //метод по удалению книги
         {
-
             Console.Clear(); //очищаем полностью консоль
-            if (lendings.Count == 0) //если число книг равно 0
+            if (books.Count == 0) //если число книг равно 0
             {
                 Console.WriteLine("Выдач книг нет.");
                 Console.Write("Нажмите любую клавишу, чтобы вернуться назад: ");
                 Console.ReadKey();
-                LendingMenu(); //возвращаемся в меню работы с выдачей книг
+                BookMenu(); //возвращаемся в меню работы с выдачей книг
             }
             else
             {
-                foreach (Lending lending in lendings) //выводим каждую выдачу книги в колллекции
+                foreach (Book book in books) //выводим каждую выдачу книги в колллекции
                 {
-                    lending.Show(); //метод вывода одной выдачи книги
+                    book.Show(); //метод вывода одной выдачи книги
                 }
                 try
                 {
                     Console.WriteLine("Введите код записи, которую хотите удалить: ");
-                    int lending_code = int.Parse(Console.ReadLine());
+                    int book_code = int.Parse(Console.ReadLine());
                     XmlDocument xDoc = new XmlDocument();
-                    xDoc.Load("lendings.xml");
+                    xDoc.Load("books.xml");
                     XmlElement xRoot = xDoc.DocumentElement;
                     foreach (XmlElement xnode in xRoot)
                     {
                         XmlNode attr = xnode.Attributes.GetNamedItem("id");
-                        if (attr.Value == lending_code.ToString())
+                        if (attr.Value == book_code.ToString())
                         {
                             xRoot.RemoveChild(xnode);
                         }
                     }
 
-                    xDoc.Save("lendings.xml");
+                    xDoc.Save("books.xml");
                     Console.Clear(); //очищаем полностью консоль
                 }
                 catch
@@ -193,10 +192,10 @@ namespace Библиотека
                     Console.WriteLine("Ошибка! Такой книги не существует!");
                     Console.WriteLine("Нажмите любую клавишу, чтобы выйти в меню");
                     Console.ReadKey();
-                    LendingMenu();
+                    BookMenu();
                 }
-                LendingMenu(); //возвращаемся в меню работы с книгами
+                BookMenu(); //возвращаемся в меню работы с книгами
             }
-        }*/
+        }
     }
 }

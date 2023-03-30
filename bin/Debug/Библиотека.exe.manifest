@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Библиотека.exe" size="24024">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Библиотека.exe" size="25048">
       <assemblyIdentity name="Библиотека" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>nwD+eBomxqw6VZiSvZQ6vsAg2NA+WhaIfii6uEhxsMM=</dsig:DigestValue>
+        <dsig:DigestValue>+wrmV6tPe23z2FVdm1WrNLMwJMUX0cXDmA3asOqd24I=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
