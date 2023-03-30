@@ -45,17 +45,17 @@ namespace Библиотека
 
             List<Book> books = new List<Book>();
             XmlDocument xDoc1 = new XmlDocument();
-            xDoc.Load("books.xml");
-            XmlElement xRoot1 = xDoc.DocumentElement;
-            foreach (XmlElement xnode in xRoot)
+            xDoc1.Load("books.xml");
+            XmlElement xRoot1 = xDoc1.DocumentElement;
+            foreach (XmlElement xnode1 in xRoot1)
             {
                 Book book = new Book();
-                XmlNode attr = xnode.Attributes.GetNamedItem("id");
+                XmlNode attr1 = xnode1.Attributes.GetNamedItem("id");
 
-                if (attr != null)
-                    book.Id = Int32.Parse(attr.Value);
+                if (attr1 != null)
+                    book.Id = Int32.Parse(attr1.Value);
 
-                foreach (XmlNode childnode in xnode.ChildNodes)
+                foreach (XmlNode childnode in xnode1.ChildNodes)
                 {
                     if (childnode.Name == "title")
                         book.Author = childnode.InnerText;
@@ -77,16 +77,16 @@ namespace Библиотека
 
             List<Reader> readers = new List<Reader>();
             XmlDocument xDoc2 = new XmlDocument();
-            xDoc.Load("readers.xml");
-            XmlElement xRoot2 = xDoc.DocumentElement;
-            foreach (XmlElement xnode in xRoot)
+            xDoc2.Load("readers.xml");
+            XmlElement xRoot2 = xDoc2.DocumentElement;
+            foreach (XmlElement xnode2 in xRoot2)
             {
                 Reader reader = new Reader();
-                XmlNode attr = xnode.Attributes.GetNamedItem("id");
-                if (attr != null)
-                    reader.Id = int.Parse(attr.Value);
+                XmlNode attr2 = xnode2.Attributes.GetNamedItem("id");
+                if (attr2 != null)
+                    reader.Id = int.Parse(attr2.Value);
 
-                foreach (XmlNode childnode in xnode.ChildNodes)
+                foreach (XmlNode childnode in xnode2.ChildNodes)
                 {
                     if (childnode.Name == "ticket_number")
                         reader.TicketNumber = Int32.Parse(childnode.InnerText);
@@ -122,7 +122,7 @@ namespace Библиотека
             switch (Code)
             {
                 case '1':
-                    ShowLendings(readers, books, lendings); //при вводе 1 демонстрируются все выдачи книг
+                    ShowLendings(lendings); //при вводе 1 демонстрируются все выдачи книг
                     break;
                 case '2':
                     AddLending(readers, books, lendings); //при вводе 2 осуществляется переход в меню с добавлением выдачи книги
@@ -141,7 +141,7 @@ namespace Библиотека
             }
         }
 
-        internal static void ShowLendings(List<Reader> readers, List<Book> books, List<Lending> lendings) //метод по выводу всех выдач книг
+        internal static void ShowLendings(List<Lending> lendings) //метод по выводу всех выдач книг
         {
             Console.Clear(); //очищаем полностью консоль
             if (lendings.Count() != 0) //если выдачи книг есть
@@ -160,8 +160,9 @@ namespace Библиотека
             LendingMenu(); //возвращаемся в меню работы с выдачами книг
         }
 
-        static void AddLending(List<Reader> readers, List<Book> books, List<Lending> lendings) //метод по добавлению выдачи книги
+        internal static void AddLending(List<Reader> readers, List<Book> books, List<Lending> lendings) //метод по добавлению выдачи книги
         {
+
             Console.Clear(); //очищаем полностью консоль
             if (books.Count() == 0) //если книг нет
             {
@@ -179,33 +180,37 @@ namespace Библиотека
             }
             else
             {                
-                foreach (Book book in books) //выводим каждую книгу колллекции
-                {
-                    book.Show(); //метод вывода одной книги
-                }
-                Console.WriteLine("Введите код книги, которую возьмет читатель");
-                int book_code = int.Parse(Console.ReadLine());                
+                                
                 try
                 {
                     XmlDocument xDoc1 = new XmlDocument();
                     xDoc1.Load("books.xml");
                     XmlElement xRoot1 = xDoc1.DocumentElement;
+ 
+                    
+                    foreach (Book book in books) //выводим каждую книгу колллекции
+                    {
+                        book.Show(); //метод вывода одной книги
+                    }
+                    Console.WriteLine("Введите код книги, которую возьмет читатель");
+                    int book_code = int.Parse(Console.ReadLine());
 
-                    XmlNode childnode1 = xRoot1.SelectSingleNode($"user[@name='{book_code}']");
+                    XmlNode childnode1 = xRoot1.SelectSingleNode($"book[@id='{book_code}']");
                     Console.Clear(); //очищаем полностью консоль
                     if (childnode1 != null) //если книга есть
                     {
+                        XmlDocument xDoc2 = new XmlDocument();
+                        xDoc2.Load("readers.xml");
+                        XmlElement xRoot2 = xDoc2.DocumentElement;
                         foreach (Reader reader in readers) //выводим каждого читателя колллекции
                         {
                             reader.Show(); //метод по выводу одного читателя
                         }
                         Console.WriteLine("Введите код читателя, который возьмет книгу");
                         int reader_code = int.Parse(Console.ReadLine());
-                        XmlDocument xDoc2 = new XmlDocument();
-                        xDoc2.Load("books.xml");
-                        XmlElement xRoot2 = xDoc1.DocumentElement;
+                       
 
-                        XmlNode childnode2 = xRoot2.SelectSingleNode($"user[@name='{book_code}']");
+                        XmlNode childnode2 = xRoot2.SelectSingleNode($"reader[@id='{reader_code}']");
                         Console.Clear(); //очищаем полностью консоль
 
                         if (childnode2 != null) //если читатель есть
@@ -215,53 +220,40 @@ namespace Библиотека
                             xDoc.Load("lendings.xml");
                             XmlElement xRoot = xDoc.DocumentElement;
                             // создаем новый элемент book
-                            XmlElement bookElem = xDoc.CreateElement("lending");
+                            XmlElement lendingElem = xDoc.CreateElement("lending");
                             // создаем атрибут name
                             XmlAttribute idAttr = xDoc.CreateAttribute("id");
                             // создаем элементы company и age
                             XmlElement titleElem = xDoc.CreateElement("title");
-                            XmlElement authorElem = xDoc.CreateElement("author");
-                            XmlElement priceElem = xDoc.CreateElement("price");
-                            XmlElement genreElem = xDoc.CreateElement("genre");
-                            XmlElement yearElem = xDoc.CreateElement("year");
+                            XmlElement ticketNumberElem = xDoc.CreateElement("ticket_number");
+                            XmlElement issueDateElem = xDoc.CreateElement("issue_date");
+                            XmlElement usagePeriodElem = xDoc.CreateElement("usage_period");
+                            XmlElement librarianNameElem = xDoc.CreateElement("librarian_name");
                             // создаем текстовые значения для элементов и атрибута
-                            try
-                            {
-                                XmlText idText = xDoc.CreateTextNode(books.Count().ToString());
-                                Console.WriteLine("Введите название книги: ");
-                                XmlText titleText = xDoc.CreateTextNode(Console.ReadLine());
-                                Console.WriteLine("Введите автора книги: ");
-                                XmlText authorText = xDoc.CreateTextNode(Console.ReadLine());
-                                Console.WriteLine("Введите цену книги: ");
-                                XmlText priceText = xDoc.CreateTextNode(int.Parse(Console.ReadLine()).ToString());
-                                Console.WriteLine("Введите жанр книги: ");
-                                XmlText genreText = xDoc.CreateTextNode(Console.ReadLine());
-                                Console.WriteLine("Введите год издания книги: ");
-                                XmlText yearText = xDoc.CreateTextNode(int.Parse(Console.ReadLine()).ToString());
-                                //добавляем узлы
-                                idAttr.AppendChild(idText);
-                                titleElem.AppendChild(titleText);
-                                authorElem.AppendChild(authorText);
-                                priceElem.AppendChild(priceText);
-                                genreElem.AppendChild(genreText);
-                                yearElem.AppendChild(yearText);
-                                bookElem.Attributes.Append(idAttr);
-                                bookElem.AppendChild(titleElem);
-                                bookElem.AppendChild(authorElem);
-                                bookElem.AppendChild(priceElem);
-                                bookElem.AppendChild(genreElem);
-                                bookElem.AppendChild(yearElem);
-                                xRoot.AppendChild(bookElem);
-                                xDoc.Save("books.xml");
-                            }
-                            catch
-                            {
-                                Console.WriteLine("Ошибка! Неверный формат");
-                                Console.WriteLine("Нажмите любую клавишу, чтобы ввести заново");
-                                Console.ReadKey();
-                                LendingMenu();
-                            }
-                            LendingMenu(); //возвращаемся в меню работы с выдачами книг
+                            XmlText idText = xDoc.CreateTextNode(lendings.Count().ToString());
+                            XmlText titleText = xDoc.CreateTextNode(childnode1.FirstChild.InnerText);
+                            XmlText ticketNumberText = xDoc.CreateTextNode(childnode2.FirstChild.InnerText);
+                            Console.WriteLine("Введите дату выдачи книги: ");
+                            XmlText issueDateText = xDoc.CreateTextNode(Console.ReadLine());
+                            Console.WriteLine("Введите период использования: ");
+                            XmlText usagePeriodText = xDoc.CreateTextNode(Console.ReadLine());
+                            Console.WriteLine("Введите имя библиотекаря: ");
+                            XmlText librarianNameText = xDoc.CreateTextNode(Console.ReadLine());
+                            //добавляем узлы
+                            idAttr.AppendChild(idText);
+                            titleElem.AppendChild(titleText);
+                            ticketNumberElem.AppendChild(ticketNumberText);
+                            issueDateElem.AppendChild(issueDateText);
+                            usagePeriodElem.AppendChild(usagePeriodText);
+                            librarianNameElem.AppendChild(librarianNameText);
+                            lendingElem.Attributes.Append(idAttr);
+                            lendingElem.AppendChild(titleElem);
+                            lendingElem.AppendChild(ticketNumberElem);
+                            lendingElem.AppendChild(issueDateElem);
+                            lendingElem.AppendChild(usagePeriodElem);
+                            lendingElem.AppendChild(librarianNameElem);
+                            xRoot.AppendChild(lendingElem);
+                            xDoc.Save("lendings.xml");
                         }
                     }
                 }
@@ -272,7 +264,7 @@ namespace Библиотека
                     Console.ReadKey();
                     LendingMenu();
                 }
-                
+                LendingMenu();
             }           
         }
 
